@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+// ElephantSQL, Neon, Supabase yoki Render Postgres uchun DATABASE_URL ishlatiladi
 const sequelize = process.env.DATABASE_URL
   ? new Sequelize(process.env.DATABASE_URL, {
       dialect: 'postgres',
@@ -8,7 +9,7 @@ const sequelize = process.env.DATABASE_URL
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: false // Bulutli serverlarda ulanish xatosini oldini oladi
+          rejectUnauthorized: false // Bulutli serverlar uchun shart
         }
       }
     })
@@ -17,16 +18,16 @@ const sequelize = process.env.DATABASE_URL
       process.env.DB_USER,
       process.env.DB_PASSWORD,
       {
-        host: process.env.DB_HOST,
+        host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
         dialect: 'postgres',
         logging: false,
-        dialectOptions: {
+        dialectOptions: process.env.NODE_ENV === 'production' ? {
           ssl: {
             require: true,
             rejectUnauthorized: false
           }
-        }
+        } : {}
       }
     );
 
