@@ -5,7 +5,6 @@ const validate = (schema) => {
     if (error) {
       const errorMessages = error.details.map((detail) => detail.message);
       
-      // KONSOLDA QAYSI MAYDON XATO EGANINI KO'RISH UCHUN:
       console.log("Joi Validation Xatosi:", errorMessages);
 
       return res.status(400).json({
