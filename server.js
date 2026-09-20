@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const sequelize = require('./config/database'); // Fayl yo'li to'g'riligini tekshiring
+// Eslatma: Papka yo'li va fayl nomi mosligini tekshiring (kichik harflar bilan)
+const sequelize = require('./config/database'); 
 
 const app = express();
 
@@ -13,9 +14,9 @@ app.use(cors({
   credentials: true
 }));
 
-// Test Endpoint
+// Test marshrut
 app.get('/', (req, res) => {
-  res.send('Backend API muvaffaqiyatli ishlamoqda!');
+  res.send('API muvaffaqiyatli ishlamoqda!');
 });
 
 const PORT = process.env.PORT || 5000;
@@ -26,18 +27,17 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('PostgreSQL bazasiga muvaffaqiyatli ulanildi!');
 
-    // Jadvallarni sinxronlashtirish
+    // Jadvallarni sinxronlash
     await sequelize.sync({ alter: false });
 
     app.listen(PORT, () => {
       console.log(`Server ${PORT}-portda ishga tushdi`);
     });
   } catch (error) {
-    // Xatolik sababini Render loglarida to'liq ko'rish uchun:
-    console.error('--- POSTGRESQL ULANISH XATOSI ---');
-    console.error('Xatoliq matni:', error.message);
+    console.error('--- SERVER ISHGA TUSHISHDA XATOLIK ---');
+    console.error('Xatoliq xabari:', error.message);
     console.error('To\'liq xato obyekti:', error);
-    console.error('--------------------------------');
+    console.error('-------------------------------------');
     process.exit(1);
   }
 }

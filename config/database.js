@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// DATABASE_URL yoki alohida parametrlar orqali ulanish
+// Render, Neon, Supabase kabi bulutli servislar uchun DATABASE_URL ishlatiladi
 const connectionString = process.env.DATABASE_URL;
 
 let sequelize;
@@ -13,7 +13,7 @@ if (connectionString) {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false // Bulutli serverlarda SSL xatosini bartaraf etadi
+        rejectUnauthorized: false // SSL sertifikat xatosini bartaraf qiladi
       }
     }
   });
