@@ -1,34 +1,40 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// ElephantSQL, Neon, Supabase yoki Render Postgres uchun DATABASE_URL ishlatiladi
-const sequelize = process.env.DATABASE_URL
-  ? new Sequelize(process.env.DATABASE_URL, {
+// DATABASE_URL yoki alohida parametrlar orqali ulanish
+const connectionString = process.env.DATABASE_URL;
+
+let sequelize;
+
+if (connectionString) {
+  sequelize = new Sequelize(connectionString, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false // Bulutli serverlarda SSL xatosini bartaraf etadi
+      }
+    }
+  });
+} else {
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
       logging: false,
       dialectOptions: {
-        ssl: {
+        ssl: process.env.NODE_ENV === 'production' ? {
           require: true,
-          rejectUnauthorized: false // Bulutli serverlar uchun shart
-        }
+          rejectUnauthorized: false
+        } : false
       }
-    })
-  : new Sequelize(
-      process.env.DB_NAME,
-      process.env.DB_USER,
-      process.env.DB_PASSWORD,
-      {
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 5432,
-        dialect: 'postgres',
-        logging: false,
-        dialectOptions: process.env.NODE_ENV === 'production' ? {
-          ssl: {
-            require: true,
-            rejectUnauthorized: false
-          }
-        } : {}
-      }
-    );
+    }
+  );
+}
 
 module.exports = sequelize;

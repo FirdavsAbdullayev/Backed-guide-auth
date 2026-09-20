@@ -1,43 +1,45 @@
 const express = require('express');
 const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
 require('dotenv').config();
 
-const sequelize = require('./config/database');
-const swaggerSpec = require('./config/swagger');
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+const sequelize = require('./config/database'); // Fayl yo'li to'g'riligini tekshiring
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Middlewares
 app.use(express.json());
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
 
-// Swagger UI UI Route
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-
-// Root endpoint
+// Test Endpoint
 app.get('/', (req, res) => {
-  res.send("Musobaqa Portali API (PostgreSQL + Sequelize) ishlamoqda... Hujjatlar: /api-docs");
+  res.send('Backend API muvaffaqiyatli ishlamoqda!');
 });
 
-// Serverni va PostgreSQL bazani ishga tushirish
 const PORT = process.env.PORT || 5000;
 
-sequelize
-  .sync({ alter: true })
-  .then(() => {
-    console.log("PostgreSQL bazasi bilan aloqa o'rnatildi");
+async function startServer() {
+  try {
+    // Bazaga ulanishni tekshirish
+    await sequelize.authenticate();
+    console.log('PostgreSQL bazasiga muvaffaqiyatli ulanildi!');
+
+    // Jadvallarni sinxronlashtirish
+    await sequelize.sync({ alter: false });
+
     app.listen(PORT, () => {
-      console.log(`Server ${PORT}-portda ishlamoqda`);
-      console.log(`Swagger hujjatlari: http://localhost:${PORT}/api-docs`);
+      console.log(`Server ${PORT}-portda ishga tushdi`);
     });
-  })
-  .catch((err) => {
-    console.error("PostgreSQL ulanishda xatolik:", err.message);
-  });
+  } catch (error) {
+    // Xatolik sababini Render loglarida to'liq ko'rish uchun:
+    console.error('--- POSTGRESQL ULANISH XATOSI ---');
+    console.error('Xatoliq matni:', error.message);
+    console.error('To\'liq xato obyekti:', error);
+    console.error('--------------------------------');
+    process.exit(1);
+  }
+}
+
+startServer();
